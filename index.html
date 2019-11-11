@@ -1,109 +1,146 @@
+<!doctype html>
 <html>
-
 <head>
-    <title>Rose</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+<style type="text/css">
+html{
+	height: 100%;
+}
+html,body,div{
+	margin: 0;
+	padding: 0;
+}
+#box{
+	position:absolute;
+	left:0;
+	top:0;
+	transform-style: preserve-3d;
+	perspective: 400px;
+	perspective-origin: 50% 0%;
+	overflow:hidden;
+}
+.flower{
+	position:absolute;
+	top: 150px;
+	width: 100px;
+	height: 100px;
+	border-top-left-radius: 35%;
+	border-top-right-radius: 35%;
+	border-bottom-left-radius: 50%;
+	border-bottom-right-radius: 50%;
+	transform-origin: center bottom;
+	background:-moz-linear-gradient(top,#F00,#111);
+	background:-webkit-linear-gradient(top,#F00,#111);
+	background:linear-gradient(top,#F00,#111);
+}
+.leaf{
+	position:absolute;
+	top: 150px;
+	width: 40px;
+	height: 100px;
+	border-top-left-radius: 50%;
+	border-top-right-radius: 50%;
+	border-bottom-left-radius: 50%;
+	border-bottom-right-radius: 50%;
+	transform-origin: center bottom;
+	background:-moz-linear-gradient(top,#0F0,#111);
+	background:-webkit-linear-gradient(top,#0F0,#111);
+	background:linear-gradient(top,#0F0,#111);
+}
+.branch{
+	position:absolute;
+	top:270px;
+	width:30px;
+	height: 400px;
+	background:#0f0;
+	background:-moz-linear-gradient(left,#0F0,#111);
+	background:-webkit-linear-gradient(left,#0F0,#111);
+	background:linear-gradient(left,#0F0,#111);
+}
+</style>
 </head>
+<body bgcolor="#000000">
+<div id="box">
+	<div id="branch" class="branch"></div>
+</div>
+<script>
+	box.style.width = window.innerWidth + "px" ;
+	box.style.height = window.innerHeight + "px" ;
+	branch.style.left = (window.innerWidth-30)/2 + "px" ;
+	var deg = - 55 ;
 
-<body style="margin-left:50px">
-    <div style="text-align: center;padding-top:200px">
-        <canvas id="c"></canvas>
-    </div>
-    <h1 style="text-align: center;padding-top:110px"">送 给 你 ......</h1>
-    <script type="text/javascript">
-    var canvas = document.getElementsByTagName('canvas')[0];
-    var context = canvas.getContext('2d');
+	var fragment = document.createDocumentFragment();
+	for(var i = 0 ; i < 40 ; i ++){
+		var div = document.createElement("div");
+		div.className = i < 30 ? "flower" : "leaf" ;
+		if(i >= 38){
+			div.style.top = 250 + (i - 37)*30 + "px" ;
+		}
+		div.id = "div_" + i ;
+		var info = getInfoByIndex(i);
+		div.style.zIndex = Math.round(100*Math.cos(info.deg/360*Math.PI*2)*info.translate);
+		div.style.left = info.left + "px" ;
+		var skew = i < 38 ? 0 : info.skew ;
+		div.style.transform = "rotateX("+(Math.cos(info.deg/360*Math.PI*2)*(-skew))+"deg) rotateZ("+Math.sin(info.deg/360*Math.PI*2)*(skew)+"deg) rotateY("+(info.deg)+"deg) translateZ("+info.translate+"px) scale("+info.scale+")";
+		fragment.appendChild(div);
+	}
+	box.appendChild(fragment);
 
-    var a = context;
-    var b = document.body;
-    var c = canvas;
+	function getInfoByIndex(i){
+		var info = {
+			left:(window.innerWidth-100)/2
+		} ;
+		if(i < 4){
+			info.deg = 10 + 90*i ;
+			info.translate = 30 ;
+			info.scale = 0.7 ;
+			info.skew = 15 ;
+		}else if(i < 10){
+			info.deg = 30 + 60*i;
+			info.translate = 45 ;
+			info.scale = 0.8 ;
+			info.skew = 20 ;
+		}else if(i < 18){
+			info.deg = 50 + 45*i;
+			info.translate = 60 ;
+			info.scale = 0.9 ;
+			info.skew = 20 ;
+		}else if(i < 30){
+			info.deg = 70 + 30*i;
+			info.translate = 85 ;
+			info.scale = 1 ;
+			info.skew = 20 ;
+		}else if(i < 38){
+			info.deg = 20 +45*i + 20;
+			info.translate = 95
+			info.scale = 1.2 ;
+			info.skew = 45 ;
+			info.left = Math.round((window.innerWidth - 40)/2) ;
+		}else{
+			info.deg = 90 + 180*i + 20;
+			info.translate = 50
+			info.scale = 1.2 ;
+			info.skew = 75 ;
+			info.left = Math.round((window.innerWidth - 40)/2) ;
+		}
+		return info ;
+	}
 
-    document.body.clientWidth;
-    var zBuffer = [];
-    var SIZE = 777;
-    canvas.width = canvas.height = SIZE;
-    var h = -350;
+	function step(){
+		for(var i = 0 ; i < 38 ; i ++){
+			var info = getInfoByIndex(i);
+			var skew = Math.max(0,deg+info.skew);
+			document.getElementById("div_"+i).style.transform = "rotateX("+(Math.cos(info.deg/360*Math.PI*2)*(-skew))+"deg) rotateZ("+Math.sin(info.deg/360*Math.PI*2)*(skew)+"deg) rotateY("+(info.deg)+"deg) translateZ("+info.translate+"px) scale("+info.scale+")";
+		}
+		deg += 0.3 ;
+		if(deg < 0)
+			requestAnimationFrame(step);
+	}
+	requestAnimationFrame(step);
 
-    function surface(a, b, c) {
-        if (c > 60) {
-            return {
-                x: Math.sin(a * 7) * (13 + 5 / (.2 + Math.pow(b * 4, 4))) - Math.sin(b) * 50,
-                y: b * SIZE + 50,
-                z: 625 + Math.cos(a * 7) * (13 + 5 / (.2 + Math.pow(b * 4, 4))) + b * 400,
-                r: a * 1 - b / 2,
-                g: a
-            };
-        }
-
-        var A = a * 2 - 1;
-        var B = b * 2 - 1;
-
-        if (A * A + B * B < 1) {
-            if (c > 37) {
-                var j = c & 1;
-                var n = j ? 6 : 4;
-                var o = .5 / (a + .01) + Math.cos(b * 125) * 3 - a * 300;
-                var w = b * h;
-                return {
-                    x: o * Math.cos(n) + w * Math.sin(n) + j * 610 - 390,
-                    y: o * Math.sin(n) - w * Math.cos(n) + 550 - j * 350,
-                    z: 1180 + Math.cos(B + A) * 99 - j * 300,
-                    r: .4 - a * .1 + Math.pow(1 - B * B, -h * 6) * .15 - a * b * .4 + Math.cos(a + b) / 5 + Math.pow(Math.cos((o * (a + 1) + (B > 0 ? w : -w)) / 25), 30) * .1 * (1 - B * B),
-                    g: o / 1e3 + .7 - o * w * 3e-6
-                };
-            }
-
-            if (c > 32) {
-                c = c * 1.16 - .15;
-                var o = a * 45 - 20;
-                var w = b * b * h;
-                var z = o * Math.sin(c) + w * Math.cos(c) + 620;
-                return {
-                    x: o * Math.cos(c) - w * Math.sin(c),
-                    y: 28 + Math.cos(B * .5) * 99 - b * b * b * 60 - z / 2 - h,
-                    z: z,
-                    r: (b * b * .3 + Math.pow((1 - (A * A)), 7) * .15 + .3) * b,
-                    g: b * .7
-                };
-            }
-
-            var o = A * (2 - b) * (80 - c * 2);
-            var w = 99 - Math.cos(A) * 120 - Math.cos(b) * (-h - c * 4.9) + Math.cos(Math.pow(1 - b, 7)) * 50 + c * 2;
-            var z = o * Math.sin(c) + w * Math.cos(c) + 700;
-            return {
-                x: o * Math.cos(c) - w * Math.sin(c),
-                y: B * 99 - Math.cos(Math.pow(b, 7)) * 50 - c / 3 - z / 1.35 + 450,
-                z: z,
-                r: (1 - b / 1.2) * .9 + a * .1,
-                g: Math.pow((1 - b), 20) / 4 + .05
-            };
-        }
-    }
-
-
-
-    setInterval(function() {
-        for (var i = 0; i < 10000; i++) {
-            var part = i % 46;
-            var c = part / .74;
-            var point = surface(Math.random(), Math.random(), c);
-            if (point) {
-                var z = point.z;
-                var x = parseInt(point.x * SIZE / z - h);
-                var y = parseInt(point.y * SIZE / z - h);
-                var zBufferIndex = y * SIZE + x;
-                if ((typeof zBuffer[zBufferIndex] === "undefined") || (zBuffer[zBufferIndex] > z)) {
-                    zBuffer[zBufferIndex] = z;
-                    var r = -parseInt(point.r * h);
-                    var g = -parseInt(point.g * h);
-                    var b = -parseInt(point.r * point.r * -80);
-                    context.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-                    context.fillRect(x, y, 1, 1);
-                }
-            }
-        }
-    }, 0);
-    </script>
+</script>
 </body>
-
-</html>
